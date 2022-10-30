@@ -4,105 +4,67 @@
 #include <string>
 #include <vector>
 
+// implementation of binary heap with decrease key operation
+class BinaryHeap {
+  const int kLowerBound = -std::pow(10, 9) - 1;
+
+  std::vector<std::pair<int, int>> heap_;
+  std::vector<int> controller_;
+
+  // updates node's pointer
+  void UpdateNode(int index) { controller_[heap_[index].second] = index; }
+
+  // checks for children
+  bool HasChildren(int index) const {
+    return index * 2 + 1 < static_cast<int>(heap_.size());
+  }
+
+  // checks for parent
+  bool HasParent(int index) const { return index != 0; }
+
+  // returns the index of the child with the lowest value
+  int GetSmallestChild(int index) const;
+
+  // sift the node up the tree
+  void SiftUp(int child);
+
+  // sift the node down the tree
+  void SiftDown(int parent);
+
+ public:
+  void Insert(int number) {
+    heap_.push_back({number, controller_.size()});
+    controller_.push_back(heap_.size() - 1);
+    SiftUp(heap_.size() - 1);
+  }
+
+  std::pair<int, int> GetMin() const { return heap_[0]; }
+
+  void ExtractMin();
+
+  void SetValueByKey(int key, int new_value) {
+    heap_[controller_[key]].first = new_value;
+    SiftUp(controller_[key]);
+    SiftDown(controller_[key]);
+  }
+
+  void ExtractByKey(int key) {
+    SetValueByKey(key, kLowerBound);
+    SiftUp(controller_[key]);
+    ExtractMin();
+  }
+
+  size_t Size() const { return heap_.size(); }
+
+  void Clear() {
+    for (int i = 0; i < static_cast<int>(Size()); ++i) {
+      controller_[heap_[i].second] = -1;
+    }
+    heap_.clear();
+  }
+};
+
 class MiniMaxHeap {
-  // implementation of binary heap with decrease key operation
-  class BinaryHeap {
-    const int kLowerBound = -std::pow(10, 9) - 1;
-
-    std::vector<std::pair<int, int>> heap_;
-    std::vector<int> controller_;
-
-    // updates node's pointer
-    void UpdateNode(int index) { controller_[heap_[index].second] = index; }
-
-    // checks for children
-    bool HasChildren(int index) const {
-      return index * 2 + 1 < (int)heap_.size();
-    }
-
-    // checks for parent
-    bool HasParent(int index) const { return index != 0; }
-
-    // returns the index of the child with the lowest value
-    int GetSmallestChild(int index) {
-      if (index * 2 + 2 < (int)heap_.size() &&
-          heap_[index * 2 + 1].first > heap_[index * 2 + 2].first) {
-        return index * 2 + 2;
-      }
-      return index * 2 + 1;
-    }
-
-    // sift the node up the tree
-    void SiftUp(int child) {
-      while (HasParent(child)) {
-        int parent = (child - 1) / 2;
-        if (heap_[parent].first > heap_[child].first) {
-          std::swap(heap_[parent], heap_[child]);
-          UpdateNode(parent);
-          UpdateNode(child);
-          child = parent;
-        } else {
-          break;
-        }
-      }
-    }
-
-    // sift the node down the tree
-    void SiftDown(int parent) {
-      while (HasChildren(parent)) {
-        int child = GetSmallestChild(parent);
-        if (heap_[child].first < heap_[parent].first) {
-          std::swap(heap_[child], heap_[parent]);
-          UpdateNode(child);
-          UpdateNode(parent);
-          parent = child;
-        } else {
-          break;
-        }
-      }
-    }
-
-   public:
-    void Insert(int number) {
-      heap_.push_back({number, controller_.size()});
-      controller_.push_back(heap_.size() - 1);
-      SiftUp(heap_.size() - 1);
-    }
-
-    std::pair<int, int> GetMin() const { return heap_[0]; }
-
-    void ExtractMin() {
-      std::swap(heap_[0], heap_.back());
-      controller_[heap_[heap_.size() - 1].second] = -1;
-      heap_.pop_back();
-      if (Size() > 0) {
-        UpdateNode(0);
-        SiftDown(0);
-      }
-    }
-
-    void SetValueByKey(int key, int new_value) {
-      heap_[controller_[key]].first = new_value;
-      SiftUp(controller_[key]);
-      SiftDown(controller_[key]);
-    }
-
-    void ExtractByKey(int key) {
-      SetValueByKey(key, kLowerBound);
-      SiftUp(controller_[key]);
-      ExtractMin();
-    }
-
-    size_t Size() const { return heap_.size(); }
-
-    void Clear() {
-      for (int i = 0; i < (int)Size(); i++) {
-        controller_[heap_[i].second] = -1;
-      }
-      heap_.clear();
-    }
-  };
-
   BinaryHeap minHeap_, maxHeap_;
 
  public:
@@ -173,5 +135,51 @@ int main() {
         }
       }
     }
+  }
+}
+
+void BinaryHeap::SiftUp(int child) {
+  while (HasParent(child)) {
+    int parent = (child - 1) / 2;
+    if (heap_[parent].first > heap_[child].first) {
+      std::swap(heap_[parent], heap_[child]);
+      UpdateNode(parent);
+      UpdateNode(child);
+      child = parent;
+    } else {
+      break;
+    }
+  }
+}
+
+void BinaryHeap::SiftDown(int parent) {
+  while (HasChildren(parent)) {
+    int child = GetSmallestChild(parent);
+    if (heap_[child].first < heap_[parent].first) {
+      std::swap(heap_[child], heap_[parent]);
+      UpdateNode(child);
+      UpdateNode(parent);
+      parent = child;
+    } else {
+      break;
+    }
+  }
+}
+
+int BinaryHeap::GetSmallestChild(int index) const {
+  if (index * 2 + 2 < static_cast<int>(heap_.size()) &&
+      heap_[index * 2 + 1].first > heap_[index * 2 + 2].first) {
+    return index * 2 + 2;
+  }
+  return index * 2 + 1;
+}
+
+void BinaryHeap::ExtractMin() {
+  std::swap(heap_[0], heap_.back());
+  controller_[heap_[heap_.size() - 1].second] = -1;
+  heap_.pop_back();
+  if (Size() > 0) {
+    UpdateNode(0);
+    SiftDown(0);
   }
 }
