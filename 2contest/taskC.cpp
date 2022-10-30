@@ -33,15 +33,15 @@ class BinaryHeap {
 
   // checks for children
   bool HasChildren(int index) const {
-    return index * 2 + 1 < (int)heap_.size();
+    return index * 2 + 1 < static_cast<int>(heap_.size());
   }
 
   // checks for parent
   bool HasParent(int index) const { return index != 0; }
 
   // returns the index of the child with the lowest value
-  int GetSmallestChild(int index) {
-    if (index * 2 + 2 < (int)heap_.size() &&
+  int GetSmallestChild(int index) const {
+    if (index * 2 + 2 < static_cast<int>(heap_.size()) &&
         heap_[index * 2 + 1].first > heap_[index * 2 + 2].first) {
       return index * 2 + 2;
     }
