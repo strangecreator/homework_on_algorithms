@@ -7,7 +7,7 @@ const int kWeight = 64 / kChunks;  // length in bits
 const int kLength = 1 << kWeight;  // amount of values
 
 int GetRadix(uint64_t number, int i) {
-  return (number >> (kWeight * i)) % kLength;
+  return (number >> (kWeight * i)) & (kLength - 1);
 }
 
 void LSDSort(uint64_t* array, int size) {
