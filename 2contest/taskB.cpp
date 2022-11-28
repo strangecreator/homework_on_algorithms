@@ -3,8 +3,8 @@
 #include <thread>
 #include <utility>
 
-static int mod = std::pow(10, 7) + 4321;
-static int min_amount = 5;
+static const int kMod = std::pow(10, 7) + 4321;
+static const int kMinAmount = 5;
 
 int CeilDivide(int n, int k) {
   if (n % k == 0) {
@@ -42,7 +42,7 @@ int Partition(int* array, int left, int right, int pivot_index) {
   std::swap(array[left], array[j - 1]);
   // finds elements that less than pivot
   int u = left;
-  for (int i = left; i < j; i++) {
+  for (int i = left; i < j; ++i) {
     if (array[i] < array[j - 1]) {
       std::swap(array[u], array[i]);
       ++u;
@@ -62,7 +62,7 @@ int ApproximateMedian(int* array, int left, int right);
 
 // returns an index to a kth smallest element (array will be modified!)
 int KthSmallest(int* array, int left, int right, int k) {
-  while (right - left >= min_amount) {
+  while (right - left >= kMinAmount) {
     // finds an approximate median index in [left, right] segment
     int median_index = ApproximateMedian(array, left, right);
     // sorts [left, right] segment relatively to an array[medianIndex]
@@ -84,12 +84,12 @@ int KthSmallest(int* array, int left, int right, int k) {
 
 // returns an approximate median of an array (array will be modified!)
 int ApproximateMedian(int* array, int left, int right) {
-  for (int i = left; i <= right; i += min_amount) {
-    int sub_right = (i + min_amount < right) ? i + min_amount - 1 : right;
+  for (int i = left; i <= right; i += kMinAmount) {
+    int sub_right = (i + kMinAmount < right) ? i + kMinAmount - 1 : right;
     int median_index = SortAndGetMedian(array, i, sub_right);
-    std::swap(array[median_index], array[left + (i - left) / min_amount]);
+    std::swap(array[median_index], array[left + (i - left) / kMinAmount]);
   }
-  int new_right = left + CeilDivide(right - left + 1, min_amount) - 1;
+  int new_right = left + CeilDivide(right - left + 1, kMinAmount) - 1;
   int middle_position = CeilDivide(new_right - left + 1, 2);
   return KthSmallest(array, left, new_right, middle_position);
 }
@@ -101,7 +101,7 @@ int main() {
   int* array = new int[n];
   std::cin >> array[0] >> array[1];
   for (int i = 2; i < n; ++i) {
-    array[i] = (array[i - 1] * 123 + array[i - 2] * 45) % mod;
+    array[i] = (array[i - 1] * 123 + array[i - 2] * 45) % kMod;
   }
   std::cout << array[KthSmallest(array, 0, n - 1, k)] << std::endl;
 }
