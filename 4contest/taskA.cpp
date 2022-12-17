@@ -1,74 +1,70 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <vector>
 
-struct Node {
-  int value = -1;
-  Node* next = nullptr;
-  bool inchain = true;
+class Node {
+  int value_ = -1;
+  Node* next_ = nullptr;
 
-  ~Node() {
-    if (inchain) {
-      delete next;
-    }
-  }
+ public:
+  Node(int value, Node* next) : value_(value), next_(next) {}
+
+  ~Node() { delete next_; }
 
   void Push(int x) {
-    Node* new_node = new Node{x, next};
-    next = new_node;
+    Node* new_node = new Node(x, next_);
+    next_ = new_node;
   }
 
   void Remove(int x) {
-    if (next == nullptr) {
+    while (next_ != nullptr && next_->value_ == x) {
+      Node* new_next = next_->next_;
+      next_->next_ = nullptr;
+      delete next_;
+      next_ = new_next;
+    }
+    if (next_ == nullptr) {
       return;
     }
-    if (next->value != x) {
-      return next->Remove(x);
-    }
-    while (next != nullptr && next->value == x) {
-      Node* new_next = next->next;
-      next->inchain = false;
-      delete next;
-      next = new_next;
-    }
+    return next_->Remove(x);
   }
 
   bool In(int x) const {
-    if (value == x) {
+    if (value_ == x) {
       return true;
     }
-    if (next == nullptr) {
+    if (next_ == nullptr) {
       return false;
     }
-    return next->In(x);
+    return next_->In(x);
   }
 };
 
 class HashTable {
   static const int kM = static_cast<int>(1e6);
-  static const int kA = static_cast<int>(1e9 + 1137);
+  static const int kA = 1130;
   static const int kB = 61;
   static const int kP = static_cast<int>(1e9 + 7);
-  Node* nodes_;
+  std::vector<Node> nodes_;
 
   static int GetHash(int x) {
-    return ((1130 * static_cast<long long>(x) + kB) % kP) % kM;
+    return ((kA * static_cast<long long>(x) + kB) % kP) % kM;
   }
 
  public:
-  HashTable() : nodes_(new Node[kM]) {
+  HashTable() {
+    nodes_.reserve(kM);
     for (int i = 0; i < kM; ++i) {
-      nodes_[i] = {-1, nullptr};
+      nodes_.emplace_back(-1, nullptr);
     }
   }
-
-  ~HashTable() { delete[] nodes_; }
 
   void Add(int x) { nodes_[GetHash(x)].Push(x); }
 
   void Remove(int x) { nodes_[GetHash(x)].Remove(x); }
 
-  bool In(int x) { return nodes_[GetHash(x)].In(x); }
+  bool In(int x) const { return nodes_[GetHash(x)].In(x); }
 };
 
 int main() {
