@@ -4,7 +4,7 @@
 #include <string>
 
 class SplayTree {
-  using ValueType = std::pair<std::string*, std::string*>;
+  using ValueType = std::pair<std::string, std::string>;
   struct Node {
     ValueType value;
     Node* left = nullptr;
@@ -16,10 +16,10 @@ class SplayTree {
     }
 
     Node* FindPlace(const std::string& str) {
-      if (left != nullptr && str < *value.first) {
+      if (left != nullptr && str < value.first) {
         return left->FindPlace(str);
       }
-      if (right != nullptr && *value.first < str) {
+      if (right != nullptr && value.first < str) {
         return right->FindPlace(str);
       }
       return this;
@@ -53,7 +53,7 @@ class SplayTree {
   }
 
   Node* Splay(Node* node, Node* x) {  // returns new root
-    if (*x->value.first < *node->value.first) {
+    if (x->value.first < node->value.first) {
       node->left = Splay(node->left, x);
       // one rotation case
       if (node->left == x) {
@@ -63,7 +63,7 @@ class SplayTree {
         return node;
       }
       // two rotation cases
-      if (*x->value.first < *node->left->value.first) {
+      if (x->value.first < node->left->value.first) {
         Zig(Zig(node));  // x is returned
       } else {
         ZagZig(node);  // x is returned
@@ -73,7 +73,7 @@ class SplayTree {
       }
       return x;
     }
-    if (*node->value.first < *x->value.first) {
+    if (node->value.first < x->value.first) {
       node->right = Splay(node->right, x);
       // one rotation case
       if (node->right == x) {
@@ -83,7 +83,7 @@ class SplayTree {
         return node;
       }
       // two rotation cases
-      if (*node->right->value.first < *x->value.first) {
+      if (node->right->value.first < x->value.first) {
         Zag(Zag(node));  // x is returned
       } else {
         ZigZag(node);  // x is returned
@@ -104,12 +104,12 @@ class SplayTree {
       root_ = new Node{value};
       return;
     }
-    Node* node = root_->FindPlace(*value.first);
-    if (*node->value.first == *value.first) {
+    Node* node = root_->FindPlace(value.first);
+    if (node->value.first == value.first) {
       Splay(root_, node);
       return;
     }
-    if (*value.first < *node->value.first) {
+    if (value.first < node->value.first) {
       Splay(root_, node->left = new Node{value});
       return;
     }
@@ -120,8 +120,8 @@ class SplayTree {
     if (root_ != nullptr) {
       Node* node = root_->FindPlace(str);
       Splay(root_, node);
-      if (*node->value.first == str) {
-        return node->value.second;
+      if (node->value.first == str) {
+        return &node->value.second;
       }
     }
     return nullptr;
@@ -141,8 +141,8 @@ int main() {
     std::cin >> str1 >> str2;
     array[2 * i] = str1;
     array[2 * i + 1] = str2;
-    tree1.Add({&array[2 * i], &array[2 * i + 1]});
-    tree2.Add({&array[2 * i + 1], &array[2 * i]});
+    tree1.Add({array[2 * i], array[2 * i + 1]});
+    tree2.Add({array[2 * i + 1], array[2 * i]});
   }
   std::cin >> q;
   while (--q != -1) {
