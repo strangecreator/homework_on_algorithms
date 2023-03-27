@@ -3,6 +3,36 @@
 #include <iostream>
 #include <iterator>
 
+class Solver {
+  int n_;
+  int64_t* array_;
+  int64_t* dp_array_;
+  int* modified_indices_;
+
+ public:
+  Solver(int n, int64_t* array, int64_t* dp_array, int* modified_indices)
+      : n_(n),
+        array_(array),
+        dp_array_(dp_array),
+        modified_indices_(modified_indices) {}
+
+  int Solve() {
+    for (int i = 0; i < n_; ++i) {
+      std::cin >> array_[i];
+      dp_array_[i] = LLONG_MIN;
+      int index = std::distance(
+          dp_array_,
+          std::upper_bound(dp_array_, dp_array_ + i + 1, array_[i],
+                           [](const int64_t& x, const int64_t& y) -> bool {
+                             return -x < -y;
+                           }));
+      dp_array_[index] = array_[i];
+      modified_indices_[i] = index;
+    }
+    return *std::max_element(modified_indices_, modified_indices_ + n_) + 1;
+  }
+};
+
 class LastOccurenceInPrefix {
   int n_;
   int* array_;
@@ -55,22 +85,12 @@ int main() {
   // initialization and finding the result length
   int n;
   std::cin >> n;
-  int64_t* array = new int64_t[n];
+  int64_t* array = new int64_t[n];  // just elements of the source array
+  // dp[i] represents the min value of the end of GIS of length "i"
   int64_t* dp_array = new int64_t[n];
   int* modified_indices = new int[n];
-  for (int i = 0; i < n; ++i) {
-    std::cin >> array[i];
-    dp_array[i] = LLONG_MIN;
-    int index = std::distance(
-        dp_array,
-        std::upper_bound(dp_array, dp_array + i + 1, array[i],
-                         [](const int64_t& x, const int64_t& y) -> bool {
-                           return -x < -y;
-                         }));
-    dp_array[index] = array[i];
-    modified_indices[i] = index;
-  }
-  int length = *std::max_element(modified_indices, modified_indices + n) + 1;
+  Solver solver(n, array, dp_array, modified_indices);
+  int length = solver.Solve();
   std::cout << length << std::endl;
   // restoring the path
   LastOccurenceInPrefix loip(modified_indices, n);
