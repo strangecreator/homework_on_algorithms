@@ -17,29 +17,32 @@ int main() {
     std::cout << -1;
     return 0;
   }
-  int** dp = new int*[k];
+  // dp[j][i] - result of the subtask with j planes and height n
+  int* layer1 = new int[n];
+  int* layer2 = new int[n];
   for (int j = 0; j < k; ++j) {
-    dp[j] = new int[n];
     for (int i = 0, m = 0; i < n; ++i) {
       if (i == 0) {
-        dp[j][i] = 0;
+        layer2[i] = 0;
         continue;
       }
       if (j == 0) {
-        dp[j][i] = i;
+        layer2[i] = i;
         continue;
       }
-      while (m < i - 1 && std::max({dp[j - 1][m], dp[j][i - m - 1]}) ==
-                              std::max({dp[j - 1][m + 1], dp[j][i - m - 2]})) {
+      while (m < i - 1 && std::max({layer1[m], layer2[i - m - 1]}) ==
+                              std::max({layer1[m + 1], layer2[i - m - 2]})) {
         ++m;
       }
-      dp[j][i] = 1 + dp[j - 1][m];
+      layer2[i] = 1 + layer1[m];
+    }
+    // copy
+    for (int i = 0; i < n; ++i) {
+      layer1[i] = layer2[i];
     }
   }
-  std::cout << dp[k - 1][n - 1];
+  std::cout << layer2[n - 1];
   // freeing up memory
-  for (int j = 0; j < k; ++j) {
-    delete[] dp[j];
-  }
-  delete[] dp;
+  delete[] layer1;
+  delete[] layer2;
 }
