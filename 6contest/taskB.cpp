@@ -23,9 +23,7 @@ class Solver {
       int index = std::distance(
           dp_array_,
           std::upper_bound(dp_array_, dp_array_ + i + 1, array_[i],
-                           [](const int64_t& x, const int64_t& y) -> bool {
-                             return -x < -y;
-                           }));
+                           [](int64_t x, int64_t y) -> bool { return x > y; }));
       dp_array_[index] = array_[i];
       modified_indices_[i] = index;
     }
@@ -77,14 +75,8 @@ class LastOccurenceInPrefix {
   }
 };
 
-int main() {
-  // speeding up
-  std::ios::sync_with_stdio(false);
-  std::cin.tie(nullptr);
-  std::cout.tie(nullptr);
+void FindAndPrintResult(int n) {
   // initialization and finding the result length
-  int n;
-  std::cin >> n;
   int64_t* array = new int64_t[n];  // just elements of the source array
   // dp[i] represents the min value of the end of GIS of length "i"
   int64_t* dp_array = new int64_t[n];
@@ -107,4 +99,15 @@ int main() {
   delete[] dp_array;
   delete[] modified_indices;
   delete[] indices;
+}
+
+int main() {
+  // speeding up
+  std::ios::sync_with_stdio(false);
+  std::cin.tie(nullptr);
+  std::cout.tie(nullptr);
+  // finding the result
+  int n;
+  std::cin >> n;
+  FindAndPrintResult(n);
 }
