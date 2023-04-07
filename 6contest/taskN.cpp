@@ -3,7 +3,7 @@
 #include <string>
 #include <climits>
 
-int main() {
+void Solve() {
     // speeding up
     std::ios::sync_with_stdio(false);
     std::cin.tie(nullptr);
@@ -18,9 +18,8 @@ int main() {
     int a_size = static_cast<int>(a_str.size()), b_size = static_cast<int>(b_str.size());
     if (a_size - b_size > k) {
         std::cout << -1;
-        return 0;
+        return;
     }
-    // a: amount symbols that will be inserted, d: similarly
     int*** dp = new int**[b_size + 1];
     for (int i = 0; i <= b_size; ++i) {
         dp[i] = new int*[k + 1];
@@ -66,4 +65,8 @@ int main() {
         delete[] dp[i];
     }
     delete[] dp;
+}
+
+int main() {
+    Solve();
 }
